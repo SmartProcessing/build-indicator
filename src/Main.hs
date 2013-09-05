@@ -15,27 +15,30 @@ getFirstStatus []  = ""
 getFirstStatus lst = getStatus $ head lst
 
 showBuildLog (name, _) = do
-  buffer  <- textBufferNew Nothing
-  textBufferSetText buffer "Loading..."
-  forkIO $ loadLog buffer name
-  view    <- textViewNewWithBuffer buffer
-  set view [
-    textViewEditable := False]
+  bufferLog  <- textBufferNew Nothing
+  textBufferSetText bufferLog "Loading..."
+  forkIO $ loadLog bufferLog name
+  
   window  <- windowNew
   set window [
     windowTitle          := name, 
     windowWindowPosition := WinPosCenterAlways,
     windowDefaultWidth   := 500, 
-    windowDefaultHeight  := 600]
-  scroll <- scrolledWindowNew Nothing Nothing
-  scrolledWindowAddWithViewport scroll view
+    windowDefaultHeight  := 600]  
 
   notebook <- notebookNew
-  notebookAppendPage notebook scroll "Log"
+  createPage notebook bufferLog "Log"  
 
   containerAdd window notebook
   widgetShowAll window
   where
+    createPage notebook buffer title = do
+      view <- textViewNewWithBuffer buffer
+      set view [
+        textViewEditable := False]
+      scroll <- scrolledWindowNew Nothing Nothing
+      scrolledWindowAddWithViewport scroll view
+      notebookAppendPage notebook scroll title
     loadLog buffer name = do
       log <- getBuildLog name
       postGUIAsync $ textBufferSetText buffer log
