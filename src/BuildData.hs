@@ -7,7 +7,7 @@ import Text.JSON
 import Text.JSON.Types
 import qualified Data.ByteString.Char8 as BS
 
-data BuildState = Success | Tested | InProgress | Error | None | Unknown deriving (Show)
+data BuildState = Success | Tested | InProgress | Start | Error | None | Unknown deriving (Show)
 
 data Build = Build 
   {
@@ -33,6 +33,7 @@ grabState object =
     "success"     -> Success
     "tested"      -> Tested
     "in_progress" -> InProgress
+    "start"       -> Start
     "error"       -> BuildData.Error
     "none"        -> None
     a             -> error $ "Unknown state " ++ a
