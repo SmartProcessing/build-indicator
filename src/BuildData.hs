@@ -1,4 +1,4 @@
-module BuildData (Build, BuildState, getBuildData, state, package, branch, started, finished) where
+module BuildData (Build, BuildState, getBuildData, getBuildLog, state, package, branch, started, finished) where
 
 import Data.List
 import Network.Curl.Download
@@ -57,15 +57,25 @@ parseJSON jsonString =
       )
     cmp (_, Build{started = a}) (_, Build{started = b}) = compare a b
 
-
-loadBuilds :: IO String
-loadBuilds = do
-  ret <- openURIWithOpts [CurlUseNetRc NetRcRequired] "https://git.smprc.ru/api/storage/squeeze/amd64/builds" 
+loadStringFromURL :: String -> IO String
+loadStringFromURL url = do
+  ret <- openURIWithOpts [CurlUseNetRc NetRcRequired] url
   case ret of
     Right b -> return $ BS.unpack b
     Left  _ -> return ""
 
+loadBuilds =
+  loadStringFromURL "https://git.smprc.ru/api/storage/squeeze/amd64/builds"
 
 getBuildData = do
     bs <- loadBuilds
     return $ parseJSON bs
+
+getBuildLog buildName = do
+  log <- loadStringFromURL $ "https://git.smprc.ru/api/storage/squeeze/amd64/log/" ++ buildName
+  case decode log of
+    Ok (JSObject a) -> 
+      case get_field a "log" of
+        Nothing -> return ""
+        Just (JSString s) -> return $ fromJSString s
+    _ -> return ""
