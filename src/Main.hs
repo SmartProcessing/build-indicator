@@ -28,8 +28,12 @@ showBuildLog (name, _) = do
     windowDefaultWidth   := 500, 
     windowDefaultHeight  := 600]
   scroll <- scrolledWindowNew Nothing Nothing
-  containerAdd window scroll
   scrolledWindowAddWithViewport scroll view
+
+  notebook <- notebookNew
+  notebookAppendPage notebook scroll "Log"
+
+  containerAdd window notebook
   widgetShowAll window
   where
     loadLog buffer name = do

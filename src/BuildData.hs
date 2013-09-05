@@ -1,4 +1,8 @@
-module BuildData (Build, BuildState, getBuildData, getBuildLog, state, package, branch, started, finished) where
+module BuildData (
+        Build, BuildState, 
+        getBuildData, getBuildLog, getBuildDiff, 
+        state, package, branch, started, finished
+      ) where
 
 import Data.List
 import Network.Curl.Download
@@ -79,3 +83,6 @@ getBuildLog buildName = do
         Nothing -> return ""
         Just (JSString s) -> return $ fromJSString s
     _ -> return ""
+
+getBuildDiff buildName = do
+  return ""
